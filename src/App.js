@@ -33,8 +33,27 @@ function App() {
     setSongInfo({...songInfo, currentTime: current, duration, animationPercentage: animation })
   }
 
+  const playSongHandlerSpaceBar = (e) => {
+    console.log(e)
+    if (e.keycode === 32){
+        if (isPlaying) {
+            audioRef.current.pause();
+            setIsPlaying(!isPlaying);
+        } else {
+            audioRef.current.play();
+            setIsPlaying(!isPlaying);
+        }
+    }
+  }
+
+  const songEndHandler = async () => {
+    let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+    await setCurrentSong(songs[(currentIndex + 1)%songs.length]);
+    if (isPlaying) audioRef.current.play();
+  }
+
   return (
-    <div className="App">
+    <div className={`App ${libraryStatus ? "library-active" : ""}`}>
       <Nav
       libraryStatus={libraryStatus}
       setLibraryStatus={setLibraryStatus}
@@ -64,6 +83,8 @@ function App() {
       onLoadedMetadata={timeUpdateHandler}
       ref={audioRef}
       src={currentSong.audio}
+      onEnded={songEndHandler}
+      onChange={playSongHandlerSpaceBar}
       ></audio>
     </div>
   );
